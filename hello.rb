@@ -1,5 +1,7 @@
 require 'rubygems'
-require 'sinatra/base'
+require 'bundler'
+
+Bundler.require
 
 class Hello < Sinatra::Base
 
