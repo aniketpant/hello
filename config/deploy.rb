@@ -5,7 +5,7 @@ require 'mina/rails'
 require 'mina/git'
 require 'mina/rbenv'
 
-set :shared_paths, ['log']
+set :shared_paths, ['log', 'tmp']
 
 task :environment do
   invoke :'rbenv:load'
@@ -15,7 +15,8 @@ task :setup => :environment do
   queue! %[mkdir -p "#{deploy_to}/shared/log"]
   queue! %[chmod g+rx,u+rwx "#{deploy_to}/shared/log"]
 
-  queue! %[touch "#{deploy_to}/shared/rack.pid"]
+  queue! %[mkdir -p "#{deploy_to}/shared/tmp"]
+  queue! %[chmod g+rx,u+rwx "#{deploy_to}/shared/tmp"]
 end
 
 desc "Deploys the current version to the server."
@@ -26,8 +27,15 @@ task :deploy => :environment do
     invoke :'bundle:install'
 
     to :launch do
-      queue "if [ -f rack.pid ]; then kill `cat rack.pid`; rm rack.pid; fi"
-      queue "rackup -D -p 4567 -s thin -P rack.pid config.ru;"
+      invoke :restart
     end
+  end
+end
+
+desc "Restarts the current release."
+task :restart => :environment do
+  in_directory "#{deploy_to}/current" do
+    queue "if [ -f tmp/rack.pid ]; then kill -9 `cat tmp/rack.pid`; rm tmp/rack.pid; fi"
+    queue "rackup -D -p 4567 -s thin -P tmp/rack.pid"
   end
 end
