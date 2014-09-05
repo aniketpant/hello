@@ -26,8 +26,8 @@ task :deploy => :environment do
     invoke :'bundle:install'
 
     to :launch do
-      queue "if [ -f rack.pid ]; then kill -9 `cat rack.pid`; else print 'no server running'; fi"
-      queue "rackup -D -p 4567 -s thin -P rack.pid config.ru"
+      queue "if [ -f rack.pid ]; then kill `cat rack.pid`; rm rack.pid; fi"
+      queue "rackup -D -p 4567 -s thin -P rack.pid config.ru;"
     end
   end
 end
