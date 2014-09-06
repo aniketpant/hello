@@ -1,7 +1,6 @@
 require './config/settings.rb'
 
 require 'mina/bundler'
-require 'mina/rails'
 require 'mina/git'
 require 'mina/rbenv'
 
@@ -32,10 +31,30 @@ task :deploy => :environment do
   end
 end
 
-desc "Restarts the current release."
+desc "Restart the server."
 task :restart => :environment do
-  in_directory "#{deploy_to}/current" do
-    queue "if [ -f tmp/rack.pid ]; then kill -9 `cat tmp/rack.pid`; rm tmp/rack.pid; fi"
-    queue "rackup -D -p 4567 -s thin -P tmp/rack.pid"
+  in_directory "#{deploy_to}/#{current_path}" do
+    queue "bundle exec thin -R config.ru -p 4567 -d restart"
+  end
+end
+
+desc "Start the server."
+task :start => :environment do
+  in_directory "#{deploy_to}/#{current_path}" do
+    queue "bundle exec thin -R config.ru -p 4567 -d start"
+  end
+end
+
+desc "Stop the server."
+task :stop => :environment do
+  in_directory "#{deploy_to}/#{current_path}" do
+    queue "bundle exec thin -R config.ru -p 4567 -d stop"
+  end
+end
+
+desc "Report server process id"
+task :info => :environment do
+  in_directory "#{deploy_to}/#{shared_path}" do
+    queue "print 'Server running with pid:' `cat tmp/pids/thin.pid`"
   end
 end
