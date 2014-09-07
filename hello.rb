@@ -6,11 +6,11 @@ Bundler.require
 class Hello < Sinatra::Base
 
   get '/' do
-    "Is it me you're looking for?"
+    erb :index
   end
 
   get '/whoa' do
-    "Whoa!"
+    erb :whoa
   end
 
   run! if app_file == $0
