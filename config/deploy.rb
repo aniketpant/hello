@@ -1,8 +1,19 @@
-require './config/settings.rb'
-
 require 'mina/bundler'
 require 'mina/git'
 require 'mina/rbenv'
+require 'configatron'
+
+require './config/settings.rb'
+
+set :domain, configatron.server.host
+set :deploy_to, configatron.server.deploy_to
+
+set :repository, configatron.git.repository
+set :branch, configatron.git.branch
+
+set :user, configatron.ssh.user
+set :forward_agent, configatron.ssh.forward_agent
+set :identity_file, configatron.ssh.identity_file
 
 set :shared_paths, ['log', 'tmp']
 
